@@ -1,0 +1,28 @@
+from typing import List
+
+
+def len_string(txt: str, start_question_bound: int, end_question_bound: int) -> int:
+    len_txt = 0
+    a_base = 96  # 'a' character code is 97 and ord('a') - a_base = 1
+    for ch in txt[start_question_bound - 1:end_question_bound]:
+        len_txt += ord(ch) - a_base
+    return len_txt
+
+
+def take_inputs() -> (int, int, str, List[int]):
+    n_in, q_in = map(int, input().split())
+    txt = input()
+    questions_list = []
+    for _ in range(q_in):
+        star, end = map(int, input().split())
+        questions_list.append((star, end))
+    return n_in, q_in, txt, questions_list
+
+
+if __name__ == '__main__':
+    song_chs, number_of_questions, song, questions = take_inputs()
+    # song_chs, number_of_questions, song, questions = 13, 7, 'sonoshikumiwo', [(1, 5), (2, 10), (7, 7), (1, 13), (4, 8),
+    #                                                                           (2, 5), (3, 9)]
+    for q in range(number_of_questions):
+        ln_str = len_string(song, *questions[q])
+        print(ln_str)
