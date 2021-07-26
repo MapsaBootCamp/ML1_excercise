@@ -1,5 +1,3 @@
-import numpy as np
-
 length_input = int(input())
 
 
