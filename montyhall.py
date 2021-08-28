@@ -68,4 +68,4 @@ def analysis(result:list,num):
     print("precentage of lose with change:", p_lose_change)
 
 result=run_number(10000)
-analysis(result,10000)
+analysis(result,10000) 

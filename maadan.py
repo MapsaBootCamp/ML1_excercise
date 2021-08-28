@@ -26,5 +26,5 @@ def analysis(number_of_games:int):
 
 num=1000
 print(f"Average time for {num} times of playing is:",analysis(num))
-
+ 
     
