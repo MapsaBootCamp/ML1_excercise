@@ -1,0 +1,161 @@
+from bisect import insort
+import typing
+
+
+class Graph:
+
+    def __init__(self):
+        self.nodes: typing.Dict[str, list[str]] = {}
+
+    def get_graph(self):
+        number_of_edges = int(input().split()[1])
+        input_list = []
+        for _ in range(number_of_edges):
+            input_list.append(input().split())
+        [self.add_edge_and_node(a_node, b_node) for a_node, b_node in input_list]
+
+    def add_node(self, name: str):
+        if name in self.nodes:
+            print(f'"{name}" node previously added')
+        else:
+            self.nodes[name] = []
+
+    def add_edge_and_node(self, source: str, sink: str):
+        if source not in self.nodes:
+            self.add_node(source)
+        if sink not in self.nodes:
+            self.add_node(sink)
+        self.nodes[source].append(sink)
+        self.nodes[sink].append(source)
+
+    def loop_finder(self) -> typing.Tuple[int, ...]:
+        loops_edges: typing.List[int] = []
+        while self.nodes['1']:
+            edges, pos, way = 1, '1', self.nodes['1'].pop()
+            self.nodes[way].remove(pos)
+            while way != '1':
+                edges += 1
+                pos, way = way, self.nodes[way].pop()
+                self.nodes[way].remove(pos)
+            insort(loops_edges, edges, )
+        return tuple(loops_edges[::-1])
+
+    def loops_dict(self):
+        self_sorted_loops = self.loop_finder()
+        loops_dict = {}
+        for loop in self_sorted_loops:
+            if loop in loops_dict:
+                loops_dict[loop] += 1
+            else:
+                loops_dict[loop] = 1
+        return self_sorted_loops, loops_dict
+
+    def graph_generator(self, node_size: int, edge_size: int):
+        n_grid = node_size - 1
+        assert n_grid > 1 and node_size <= edge_size <= n_grid * 2, f'{n_grid}?{node_size}?{edge_size}'
+        import random
+        stack = random.sample(range(2, 100_000), n_grid)
+        head_b = '1'
+        loop_number = edge_size - node_size
+        loop_shape = [True] * loop_number + [False] * (node_size - loop_number - 2)
+        random.shuffle(loop_shape)
+        loop_shape.append(False)
+        for n, head_a in enumerate(stack):
+            self.add_edge_and_node(str(head_a), str(head_b))
+            if loop_shape[n]:  # random.randint(0, 1):
+                self.add_edge_and_node(str(head_a), '1')
+                head_b = '1'
+            else:
+                head_b = head_a
+        else:
+            self.add_edge_and_node(str(head_b), '1')
+        return
+
+
+class ThreeSet:
+    balance_number = 2000
+
+    def __init__(self, init=(0, 0, 0)):
+        self.config = init
+        self.loops = 0
+
+    def __getitem__(self, item):
+        assert item in ('r', 'b', 2)
+        return self.config[{'r': 0, 'b': 2, 2: 1}[item]]
+
+    def __repr__(self):
+        return str(self.config)
+
+    def __add__(self, other):
+        assert isinstance(other, int)
+        self_loops = self.loops
+        if self['r'] < ThreeSet.balance_number:
+            l_config = ThreeSet((self['r'] + other, self[2], self['b']))
+            l_config.loops = self_loops + 1
+        else:
+            l_config = None
+        if self['b'] < ThreeSet.balance_number:
+            r_config = ThreeSet((self['r'], self[2], self['b'] + other))
+            r_config.loops = self_loops + 1
+        else:
+            r_config = None
+        if self[2] == 0:
+            c_config = ThreeSet((self['r'], other, self['b']))
+            c_config.loops = self_loops + 1
+        else:
+            c_config = None
+        return l_config, c_config, r_config
+
+    def divide(self, n) -> int:
+        dif = abs(self['r'] - self['b'])
+        if self.loops == n and self[2] == 0 and dif < 2:
+            return 1 if dif == 0 else 2
+        elif self[2] - dif > 1:
+            return 2
+        else:
+            return 0
+
+
+def all_config_combination_creation(sorted_loops: typing.Tuple[int, ...]):
+    ThreeSet.balance_number = sum(sorted_loops) // 2
+    open_configs: typing.List[ThreeSet, ...] = [ThreeSet()]
+    lock_configs = []
+    correct_form = 0
+    n_loop = len(sorted_loops)
+    for loop in sorted_loops:
+        limit = len(lock_configs)
+        for i in range(limit):
+            config = lock_configs[i]
+            new_config_l, new_config_c, new_config_r = config + loop
+            if new_config_l is not None:
+                correct_form += new_config_l.divide(n_loop)
+                lock_configs.append(new_config_l)
+
+            if new_config_r is not None:
+                correct_form += new_config_r.divide(n_loop)
+                lock_configs.append(new_config_r)
+
+        limit = len(open_configs)
+        for i in range(limit):
+            config = open_configs[i]
+            new_config_l, new_config_c, new_config_r = config + loop
+            if new_config_l is not None:
+                correct_form += new_config_l.divide(n_loop)
+                open_configs.append(new_config_l)
+
+            if new_config_c is not None:
+                lock_configs.append(new_config_c)
+                correct_form += new_config_c.divide(n_loop)
+
+            if new_config_r is not None:
+                correct_form += new_config_r.divide(n_loop)
+                open_configs.append(new_config_r)
+
+    return correct_form
+
+
+if __name__ == '__main__':
+    base = Graph()
+    base.get_graph()
+    number_of_configs = all_config_combination_creation(base.loop_finder())
+    print(number_of_configs)
