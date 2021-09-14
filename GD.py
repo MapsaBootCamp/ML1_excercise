@@ -4,9 +4,10 @@ from DirectMethod import LinearRegression
 
 
 class LinearRegressionGradiantDescent(LinearRegression):
-    def _cost_function(self, mat_x: np.ndarray, vec_y: np.ndarray):
+    def _cost_function(self, mat_x: np.ndarray, vec_y: np.ndarray, regularization: bool):
         hypothesis = mat_x @ self.coef_ + self.intercept_
-        return np.linalg.norm(np.subtract(hypothesis, vec_y)) / 2
+        return np.linalg.norm(np.subtract(hypothesis, vec_y)) / 2 + (
+            np.linalg.norm(self.coef_) if regularization else 0)
 
     def _gradient_descent(
             self, mat_x: np.ndarray, vec_y: np.ndarray, linear_rate=0.001, regularization=False, laanda=0.001
@@ -17,11 +18,11 @@ class LinearRegressionGradiantDescent(LinearRegression):
         self.coef_ -= linear_rate * (loss @ mat_x) / loss.shape[-1]
         if regularization:
             self.coef_ += laanda * self.coef_
-        return self._cost_function(mat_x, vec_y) + (np.linalg.norm(self.coef_) if regularization else 0)
+        return self._cost_function(mat_x, vec_y, regularization)
 
     def fit(
-            self, mat_x: np.ndarray, vec_y: np.ndarray, linear_rate=0.1, max_iteration=1000, stop_criteria=1e-3,
-            regularization=False, laanda=0.001, error_record=False
+            self, mat_x: np.ndarray, vec_y: np.ndarray, linear_rate=0.05, max_iteration=1000, stop_criteria=1e-3,
+            regularization=False, laanda=0.0001, error_record=False
             ):
         if error_record:
             self.err_ls_ = []
@@ -38,6 +39,7 @@ class LinearRegressionGradiantDescent(LinearRegression):
                 break
         else:
             print(f"train process doesn't converge and error is {error}")
+        return self
 
 
 if __name__ == '__main__':
