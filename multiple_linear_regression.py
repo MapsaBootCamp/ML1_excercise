@@ -1,4 +1,4 @@
-''' simple linear regression
+''' multiple linear regression
     y = m1 * x1 + m2 * x2 + ... + mn * xn + c
 '''
 from sklearn.datasets import load_boston
