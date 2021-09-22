@@ -1,5 +1,5 @@
 ''' simple linear regression
-    y = mx + b
+    y = mx + c
 '''
 import seaborn as sns
 import matplotlib.pyplot as plt
