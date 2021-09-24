@@ -17,7 +17,7 @@ class LinearRegression:
     def fit(self, X, y):
         n_samples, n_features = X.shape
 
-        # init parameters
+        # Init parameters
         self.weights = np.zeros(n_features)
         self.bias = 0
 
@@ -34,4 +34,4 @@ class LinearRegression:
 
     def predict(self, X):
         y_approximated = np.dot(X, self.weights) + self.bias
-        return y_approximated
+        return y_approximated 
